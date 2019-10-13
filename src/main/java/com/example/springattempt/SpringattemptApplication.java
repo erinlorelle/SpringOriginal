@@ -47,7 +47,7 @@ enum Events {
     SPATREADYFORUIDISPLAY,
     DATARECEIVEDFROMSPAT,
     SPATSIGNALEDINTERSECTIONCOMPLETE,
-    ACTIVATESPATSTANDBY,                       // SPaT Events
+    ACTIVATESPATSTANDBY,                // SPaT Events
     INRANGE,
     COLLECTDATA,
     CALCULATEMATH,
@@ -61,12 +61,12 @@ enum Events {
 
 enum States{
     INITIALSTATE,
-    DEVICEACTIVATED,       // for UI and SPaT
+    DEVICEACTIVATED,        // for UI and SPaT
     DEVICEDEACTIVATED,
     FORK,
     TASKS,
     JOIN,
-    UIACTIVATED,             // UI States
+    UIACTIVATED,            // UI States
     UISTANDBY,
     UIDISPLAYWAITING,
     ADVISORYDISPLAYED,
@@ -93,7 +93,7 @@ class Runner implements ApplicationRunner{
     
     private final StateMachineFactory<States, Events> factory;
     
-    Runner(StateMachineFactory<States, Events> factory)   // ignore this error - IDE flagging - runs
+    Runner(StateMachineFactory<States, Events> factory)   // ignore this error - IDE flagging - still runs
     {
         this.factory = factory;
     }
@@ -147,7 +147,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
         // assigns events to initial and targeted states, and their order
         transitions
                 
-                // initial state to act as buffer since cannot fork on initial state
+                // initial state to act as buffer since cannot fork initial state
                 .withExternal().source(States.INITIALSTATE).target(States.DEVICEACTIVATED).event(Events.ACTIVATEDEVICE)
                 .and()
                 
@@ -158,7 +158,11 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .and()
                 .withExternal().source(States.UIACTIVATED).target(States.UISTANDBY).event(Events.ACTIVATEUISTANDBY)
                 .and()
-                .withExternal().source(States.SPATACTIVATED).target(States.SPATSTANDBY).event(Events.ACTIVATESPATSTANDBY);
+                .withExternal().source(States.SPATACTIVATED).target(States.SPATSTANDBY).event(Events.ACTIVATESPATSTANDBY)
+                .and()
+                .withJoin().source(States.TASKS).target(States.JOIN)
+                .and()
+                .withExternal().source(States.JOIN).target(States.DEVICEDEACTIVATED);
                 
                 // UI transitions
                 /*.withExternal().source(States.DEVICEACTIVATED).target(States.UIATIVATED).event(Events.ACTIVATEUIANDSPAT)
@@ -169,6 +173,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .and()
                 .withExternal().source(States.UIDISPLAYWAITING).target(States.ADVISORYDISPLAYED).event(Events.DATARECEIVEDFROMSPAT)
                 */
+                
                 // SPaT transitions
                 /*.and()
                 .withExternal().source(States.DEVICEACTIVATED).target(States.SPATACTIVATED).event(Events.ACTIVATEUIANDSPAT)
@@ -207,11 +212,11 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 
                 // with fork
                 .withStates().initial(States.INITIALSTATE)  // initial state
-                .state(States.DEVICEACTIVATED).fork(States.FORK).state(States.TASKS)
+                .state(States.DEVICEACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
                 .and()
                 .withStates().parent(States.TASKS).initial(States.UIACTIVATED).end(States.UISTANDBY)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.SPATSTANDBY).end(States.SPATSTANDBY)
+                .withStates().parent(States.TASKS).initial(States.SPATACTIVATED).end(States.SPATSTANDBY)
                 .state(States.UIACTIVATED)
                 .stateEntry(States.UIACTIVATED, new Action<States, Events>()
                 {
@@ -219,7 +224,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                     public void execute(StateContext<States, Events> context)
                     {
                         System.out.print("\nUI Activated Started\n");
-                        for(int i=1;i<=149; i++)
+                        for(int i=100;i<=149; i++)
                             System.out.print(i + " ");
                         System.out.print("\nUI Activated Done\n");
                     }
@@ -268,9 +273,9 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .end(States.DEVICEDEACTIVATED);  // final state
         
         
-        /*
         
-          */
+        
+          
     }
     
     // the "engine" behind the machine
