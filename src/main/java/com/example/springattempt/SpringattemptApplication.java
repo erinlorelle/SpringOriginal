@@ -223,6 +223,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                     @Override
                     public void execute(StateContext<States, Events> context)
                     {
+                        
                         System.out.print("\nUI Activated Started\n");
                         for(int i=100;i<=149; i++)
                             System.out.print(i + " ");
