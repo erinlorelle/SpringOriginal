@@ -39,8 +39,8 @@ public class SpringattemptApplication
 }
 
 enum Events {
-    ACTIVATE_DEVICE,
-    ACTIVATE_UI_AND_SPAT,                  // for UI and SPaT
+    ACTIVATE_DEVICE,                    // for UI and SPaT
+    ACTIVATE_UI_AND_SPAT,
     CANCELLED_REQUEST,
     INITIATE_SHUTDOWN,
     ACTIVATE_UI_STANDBY,                  // UI Events
@@ -60,8 +60,8 @@ enum Events {
 }
 
 enum States{
-    INITIAL_STATE,
-    DEVICE_ACTIVATED,        // for UI and SPaT
+    INITIAL_STATE,          // for UI and SPaT
+    DEVICE_ACTIVATED,
     DEVICE_DEACTIVATED,
     FORK,
     TASKS,
@@ -113,24 +113,9 @@ class Runner implements ApplicationRunner{
         /*System.out.println("Waiting 5 seconds...");
         Thread.sleep(5000);*/                               // delays thread for 5 seconds
     
-        machine.sendEvent(Events.ACTIVATE_UI_AND_SPAT);
-        log.info("current state: " + machine.getState().getId().name());
-    
-        /*machine.sendEvent(Events.ACTIVATE_UI_STANDBY);
+        machine.sendEvent(Events.ACTIVATE_UI_AND_SPAT);     
         log.info("current state: " + machine.getState().getId().name());
         
-        machine.sendEvent(Events.SPAT_READY_FOR_UI_DISPLAY);
-        log.info("current state: " + machine.getState().getId().name());
-    
-        machine.sendEvent(Events.ACTIVATE_SPAT_STANDBY);
-        log.info("current state: " + machine.getState().getId().name());
-    
-        machine.sendEvent(Events.IN_RANGE);
-        log.info("current state: " + machine.getState().getId().name());*/
-        
-        /*Message<Events> eventsMessage = MessageBuilder.withPayload(Events.SPAT_SIGNALED_INTERSECTION_COMPLETE).setHeader("a", "b").build();
-        machine.sendEvent(eventsMessage);
-        log.info("current state: " + machine.getState().getId().name());*/
     }
 }
 
@@ -152,6 +137,19 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .and()
                 
                 // attempt at fork
+                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.FORK).event(Events.ACTIVATE_UI_AND_SPAT)
+                .and()
+                .withFork().source(States.FORK).target(States.TASKS)
+                .and()
+                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
+                .and()
+                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
+                .and()
+                .withJoin().source(States.TASKS).target(States.JOIN)
+                .and()
+                .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);*/
+    
+                // another forkin' attempt
                 .withExternal().source(States.DEVICE_ACTIVATED).target(States.FORK).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
                 .withFork().source(States.FORK).target(States.TASKS)
@@ -164,32 +162,6 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .and()
                 .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);
                 
-                // UI transitions
-                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.UI_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
-                .and()
-                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
-                .and()
-                .withExternal().source(States.UI_STANDBY).target(States.UI_DISPLAY_WAITING).event(Events.SPAT_READY_FOR_UI_DISPLAY)
-                .and()
-                .withExternal().source(States.UI_DISPLAY_WAITING).target(States.ADVISORY_DISPLAYED).event(Events.DATA_RECEIVED_FROM_SPAT)
-                */
-                
-                // SPaT transitions
-                /*.and()
-                .withExternal().source(States.DEVICE_ACTIVATED).target(States.SPAT_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
-                .and()
-                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
-                .and()
-                .withExternal().source(States.SPAT_STANDBY).target(States.TRIGGER_ADV_CYCLE).event(Events.IN_RANGE)*/;
-                
-         /*     .withExternal().source(States.READY).target(States.FORK).event(Events.ACTIVATE)
-                .and()
-                .withFork().source(States.FORK).target(States.TASKS)
-                .and()
-                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY)
-                .and()
-                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY);
-         */
     }
     
     // configure the states involved in the machine
@@ -211,12 +183,22 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .end(States.DEVICE_DEACTIVATED);*/  // final state
                 
                 // with fork
+                /*.withStates().initial(States.INITIAL_STATE)  // initial state
+                .state(States.DEVICE_ACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
+                .and()
+                .withStates().parent(States.TASKS).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
+                .and()
+                .withStates().parent(States.TASKS).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)*/
+        
+                // another forkin' attempt
                 .withStates().initial(States.INITIAL_STATE)  // initial state
                 .state(States.DEVICE_ACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
                 .and()
                 .withStates().parent(States.TASKS).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
                 .and()
                 .withStates().parent(States.TASKS).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)
+                
+                
                 .state(States.UI_ACTIVATED)
                 .stateEntry(States.UI_ACTIVATED, new Action<States, Events>()
                 {
