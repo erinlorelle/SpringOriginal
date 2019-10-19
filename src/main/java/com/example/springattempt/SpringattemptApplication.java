@@ -63,9 +63,8 @@ enum States{
     INITIAL_STATE,          // for UI and SPaT
     DEVICE_ACTIVATED,
     DEVICE_DEACTIVATED,
-    FORK,
-    TASKS,
-    JOIN,
+    UI_SPAT_PARENT,
+    SHUTDOWN_INITIATED,
     UI_ACTIVATED,            // UI States
     UI_STANDBY,
     UI_DISPLAY_WAITING,
@@ -113,7 +112,7 @@ class Runner implements ApplicationRunner{
         /*System.out.println("Waiting 5 seconds...");
         Thread.sleep(5000);*/                               // delays thread for 5 seconds
     
-        machine.sendEvent(Events.ACTIVATE_UI_AND_SPAT);     
+        machine.sendEvent(Events.ACTIVATE_UI_AND_SPAT);
         log.info("current state: " + machine.getState().getId().name());
         
     }
@@ -132,35 +131,35 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
         // assigns events to initial and targeted states, and their order
         transitions
                 
-                // initial state to act as buffer since cannot fork initial state
+                // initial state to act as buffer since cannot DEVICE_ACTIVATED initial state
                 .withExternal().source(States.INITIAL_STATE).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_DEVICE)
                 .and()
                 
-                // attempt at fork
-                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.FORK).event(Events.ACTIVATE_UI_AND_SPAT)
+                // attempt at DEVICE_ACTIVATED
+                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
-                .withFork().source(States.FORK).target(States.TASKS)
+                .withDEVICE_ACTIVATED().source(States.DEVICE_ACTIVATED).target(States.UI_SPAT_PARENT)
                 .and()
                 .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
                 .and()
                 .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
                 .and()
-                .withJoin().source(States.TASKS).target(States.JOIN)
+                .withSHUTDOWN_INITIATED().source(States.UI_SPAT_PARENT).target(States.SHUTDOWN_INITIATED)
                 .and()
-                .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);*/
+                .withExternal().source(States.SHUTDOWN_INITIATED).target(States.DEVICE_DEACTIVATED);*/
     
-                // another forkin' attempt
-                .withExternal().source(States.DEVICE_ACTIVATED).target(States.FORK).event(Events.ACTIVATE_UI_AND_SPAT)
+                // another DEVICE_ACTIVATEDin' attempt
+                .withExternal().source(States.DEVICE_ACTIVATED).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
-                .withFork().source(States.FORK).target(States.TASKS)
+                .withFork().source(States.DEVICE_ACTIVATED).target(States.UI_SPAT_PARENT)
                 .and()
                 .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
                 .and()
                 .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
                 .and()
-                .withJoin().source(States.TASKS).target(States.JOIN)
+                .withJoin().source(States.UI_SPAT_PARENT).target(States.SHUTDOWN_INITIATED)
                 .and()
-                .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);
+                .withExternal().source(States.SHUTDOWN_INITIATED).target(States.DEVICE_DEACTIVATED);
                 
     }
     
@@ -168,7 +167,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
     public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception
     {
         states
-                // without fork
+                // without DEVICE_ACTIVATED
                 /*.withStates().initial(States.INITIAL_STATE)  // initial state
                 .state(States.DEVICE_ACTIVATED)
                 .state(States.UI_ACTIVATED)
@@ -182,21 +181,21 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .state(States.TRIGGER_ADV_CYCLE)
                 .end(States.DEVICE_DEACTIVATED);*/  // final state
                 
-                // with fork
+                // with DEVICE_ACTIVATED
                 /*.withStates().initial(States.INITIAL_STATE)  // initial state
-                .state(States.DEVICE_ACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
+                .state(States.DEVICE_ACTIVATED).DEVICE_ACTIVATED(States.DEVICE_ACTIVATED).state(States.UI_SPAT_PARENT).SHUTDOWN_INITIATED(States.SHUTDOWN_INITIATED)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
+                .withStates().parent(States.UI_SPAT_PARENT).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)*/
+                .withStates().parent(States.UI_SPAT_PARENT).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)*/
         
-                // another forkin' attempt
+                // another DEVICE_ACTIVATEDin' attempt
                 .withStates().initial(States.INITIAL_STATE)  // initial state
-                .state(States.DEVICE_ACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
+                .state(States.DEVICE_ACTIVATED).fork(States.DEVICE_ACTIVATED).state(States.UI_SPAT_PARENT).join(States.SHUTDOWN_INITIATED)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
+                .withStates().parent(States.UI_SPAT_PARENT).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)
+                .withStates().parent(States.UI_SPAT_PARENT).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)
                 
                 
                 .state(States.UI_ACTIVATED)
