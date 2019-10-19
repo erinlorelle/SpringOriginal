@@ -165,9 +165,9 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);
                 
                 // UI transitions
-                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.UI_ATIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
+                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.UI_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
-                .withExternal().source(States.UI_ATIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_TANDBY)
+                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
                 .and()
                 .withExternal().source(States.UI_STANDBY).target(States.UI_DISPLAY_WAITING).event(Events.SPAT_READY_FOR_UI_DISPLAY)
                 .and()
