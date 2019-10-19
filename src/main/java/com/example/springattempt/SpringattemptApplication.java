@@ -39,7 +39,7 @@ public class SpringattemptApplication
 }
 
 enum Events {
-    ACTIVATE_DEVICE,                    // for UI and SPaT
+    ACTIVATE_DEVICE,                       // for UI and SPaT
     ACTIVATE_UI_AND_SPAT,
     CANCELLED_REQUEST,
     INITIATE_SHUTDOWN,
@@ -131,24 +131,12 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
         // assigns events to initial and targeted states, and their order
         transitions
                 
-                // initial state to act as buffer since cannot DEVICE_ACTIVATED initial state
+                // initial state to act as buffer since cannot fork initial state
                 .withExternal().source(States.INITIAL_STATE).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_DEVICE)
                 .and()
                 
-                // attempt at DEVICE_ACTIVATED
-                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
-                .and()
-                .withDEVICE_ACTIVATED().source(States.DEVICE_ACTIVATED).target(States.UI_SPAT_PARENT)
-                .and()
-                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
-                .and()
-                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
-                .and()
-                .withSHUTDOWN_INITIATED().source(States.UI_SPAT_PARENT).target(States.SHUTDOWN_INITIATED)
-                .and()
-                .withExternal().source(States.SHUTDOWN_INITIATED).target(States.DEVICE_DEACTIVATED);*/
-    
-                // another DEVICE_ACTIVATEDin' attempt
+               
+                // another forkin' attempt
                 .withExternal().source(States.DEVICE_ACTIVATED).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
                 .withFork().source(States.DEVICE_ACTIVATED).target(States.UI_SPAT_PARENT)
@@ -157,7 +145,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                 .and()
                 .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
                 .and()
-                .withJoin().source(States.UI_SPAT_PARENT).target(States.SHUTDOWN_INITIATED)
+                .withJoin().source(States.UI_STANDBY).source(States.SPAT_STANDBY).target(States.SHUTDOWN_INITIATED)
                 .and()
                 .withExternal().source(States.SHUTDOWN_INITIATED).target(States.DEVICE_DEACTIVATED);
                 
@@ -167,29 +155,7 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
     public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception
     {
         states
-                // without DEVICE_ACTIVATED
-                /*.withStates().initial(States.INITIAL_STATE)  // initial state
-                .state(States.DEVICE_ACTIVATED)
-                .state(States.UI_ACTIVATED)
-                .state(States.SPAT_ACTIVATED)
-                .state(States.UI_STANDBY)
-                .state(States.UI_DISPLAY_WAITING)
-                .state(States.ADVISORY_DISPLAYED)
-                .state(States.UI_STANDBY)
-                .state(States.UI_DEACTIVATED)
-                .state(States.SPAT_STANDBY)
-                .state(States.TRIGGER_ADV_CYCLE)
-                .end(States.DEVICE_DEACTIVATED);*/  // final state
-                
-                // with DEVICE_ACTIVATED
-                /*.withStates().initial(States.INITIAL_STATE)  // initial state
-                .state(States.DEVICE_ACTIVATED).DEVICE_ACTIVATED(States.DEVICE_ACTIVATED).state(States.UI_SPAT_PARENT).SHUTDOWN_INITIATED(States.SHUTDOWN_INITIATED)
-                .and()
-                .withStates().parent(States.UI_SPAT_PARENT).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
-                .and()
-                .withStates().parent(States.UI_SPAT_PARENT).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)*/
-        
-                // another DEVICE_ACTIVATEDin' attempt
+                // another forkin' attempt
                 .withStates().initial(States.INITIAL_STATE)  // initial state
                 .state(States.DEVICE_ACTIVATED).fork(States.DEVICE_ACTIVATED).state(States.UI_SPAT_PARENT).join(States.SHUTDOWN_INITIATED)
                 .and()
