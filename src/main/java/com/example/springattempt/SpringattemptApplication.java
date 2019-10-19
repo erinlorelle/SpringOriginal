@@ -39,52 +39,52 @@ public class SpringattemptApplication
 }
 
 enum Events {
-    ACTIVATEDEVICE,
-    ACTIVATEUIANDSPAT,                  // for UI and SPaT
-    CANCELLEDREQUEST,
-    INITIATESHUTDOWN,
-    ACTIVATEUISTANDBY,                  // UI Events
-    SPATREADYFORUIDISPLAY,
-    DATARECEIVEDFROMSPAT,
-    SPATSIGNALEDINTERSECTIONCOMPLETE,
-    ACTIVATESPATSTANDBY,                // SPaT Events
-    INRANGE,
-    COLLECTDATA,
-    CALCULATEMATH,
-    ACTIVATEUIDISPLAY,
-    WHILESAFE,
-    NOTSAFE,
-    THROUGHINTERSECTION,
-    OUTOFRANGE,
-    SIGNALUISTANDBY
+    ACTIVATE_DEVICE,
+    ACTIVATE_UI_AND_SPAT,                  // for UI and SPaT
+    CANCELLED_REQUEST,
+    INITIATE_SHUTDOWN,
+    ACTIVATE_UI_STANDBY,                  // UI Events
+    SPAT_READY_FOR_UI_DISPLAY,
+    DATA_RECEIVED_FROM_SPAT,
+    SPAT_SIGNALED_INTERSECTION_COMPLETE,
+    ACTIVATE_SPAT_STANDBY,                // SPaT Events
+    IN_RANGE,
+    COLLECT_DATA,
+    CALCULATE_MATH,
+    ACTIVATE_UI_DISPLAY,
+    WHILE_SAFE,
+    NOT_SAFE,
+    THROUGH_INTERSECTION,
+    OUT_OF_RANGE,
+    SIGNAL_UI_STANDBY
 }
 
 enum States{
-    INITIALSTATE,
-    DEVICEACTIVATED,        // for UI and SPaT
-    DEVICEDEACTIVATED,
+    INITIAL_STATE,
+    DEVICE_ACTIVATED,        // for UI and SPaT
+    DEVICE_DEACTIVATED,
     FORK,
     TASKS,
     JOIN,
-    UIACTIVATED,            // UI States
-    UISTANDBY,
-    UIDISPLAYWAITING,
-    ADVISORYDISPLAYED,
-    SPATACTIVATED,
-    UIDEACTIVATED,
-    SPATSTANDBY,            // SPaT States
-    TRIGGERADVDISPLAY,
-    TRIGGERADVCYCLE,
-    INTERSECTINOIDENTIFIED,
-    INTERSECTIONCOMPLETE,
-    DATACOLLECTED,
-    CALCULATIONSCOMPLETE,
-    UIDISPLAYREADY,
-    ADVISORYREADY,
-    DISPLAYSPEEDRANGE,
-    DISPLAYSTOP,
-    SPATPREPFORSTANDBY,
-    SPATDEACTIVATED
+    UI_ACTIVATED,            // UI States
+    UI_STANDBY,
+    UI_DISPLAY_WAITING,
+    ADVISORY_DISPLAYED,
+    SPAT_ACTIVATED,
+    UI_DEACTIVATED,
+    SPAT_STANDBY,            // SPaT States
+    TRIGGER_ADV_DISPLAY,
+    TRIGGER_ADV_CYCLE,
+    INTERSECTION_IDENTIFIED,
+    INTERSECTION_COMPLETE,
+    DATA_COLLECTED,
+    CALCULATIONS_COMPLETE,
+    UI_DISPLAY_READY,
+    ADVISORY_READY,
+    DISPLAY_SPEED_RANGE,
+    DISPLAY_STOP,
+    SPAT_PREP_FOR_STANDBY,
+    SPAT_DEACTIVATED
 }
 
 @Log
@@ -108,27 +108,27 @@ class Runner implements ApplicationRunner{
         
         // manually activating events to trigger states in the machine
         log.info("current state: " + machine.getState().getId().name());
-        machine.sendEvent(Events.ACTIVATEDEVICE);
+        machine.sendEvent(Events.ACTIVATE_DEVICE);
         log.info("current state: " + machine.getState().getId().name());
         /*System.out.println("Waiting 5 seconds...");
         Thread.sleep(5000);*/                               // delays thread for 5 seconds
     
-        machine.sendEvent(Events.ACTIVATEUIANDSPAT);
+        machine.sendEvent(Events.ACTIVATE_UI_AND_SPAT);
         log.info("current state: " + machine.getState().getId().name());
     
-        /*machine.sendEvent(Events.ACTIVATEUISTANDBY);
+        /*machine.sendEvent(Events.ACTIVATE_UI_STANDBY);
         log.info("current state: " + machine.getState().getId().name());
         
-        machine.sendEvent(Events.SPATREADYFORUIDISPLAY);
+        machine.sendEvent(Events.SPAT_READY_FOR_UI_DISPLAY);
         log.info("current state: " + machine.getState().getId().name());
     
-        machine.sendEvent(Events.ACTIVATESPATSTANDBY);
+        machine.sendEvent(Events.ACTIVATE_SPAT_STANDBY);
         log.info("current state: " + machine.getState().getId().name());
     
-        machine.sendEvent(Events.INRANGE);
+        machine.sendEvent(Events.IN_RANGE);
         log.info("current state: " + machine.getState().getId().name());*/
         
-        /*Message<Events> eventsMessage = MessageBuilder.withPayload(Events.SPATSIGNALEDINTERSECTIONCOMPLETE).setHeader("a", "b").build();
+        /*Message<Events> eventsMessage = MessageBuilder.withPayload(Events.SPAT_SIGNALED_INTERSECTION_COMPLETE).setHeader("a", "b").build();
         machine.sendEvent(eventsMessage);
         log.info("current state: " + machine.getState().getId().name());*/
     }
@@ -148,47 +148,47 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
         transitions
                 
                 // initial state to act as buffer since cannot fork initial state
-                .withExternal().source(States.INITIALSTATE).target(States.DEVICEACTIVATED).event(Events.ACTIVATEDEVICE)
+                .withExternal().source(States.INITIAL_STATE).target(States.DEVICE_ACTIVATED).event(Events.ACTIVATE_DEVICE)
                 .and()
                 
                 // attempt at fork
-                .withExternal().source(States.DEVICEACTIVATED).target(States.FORK).event(Events.ACTIVATEUIANDSPAT)
+                .withExternal().source(States.DEVICE_ACTIVATED).target(States.FORK).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
                 .withFork().source(States.FORK).target(States.TASKS)
                 .and()
-                .withExternal().source(States.UIACTIVATED).target(States.UISTANDBY).event(Events.ACTIVATEUISTANDBY)
+                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_STANDBY)
                 .and()
-                .withExternal().source(States.SPATACTIVATED).target(States.SPATSTANDBY).event(Events.ACTIVATESPATSTANDBY)
+                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
                 .and()
                 .withJoin().source(States.TASKS).target(States.JOIN)
                 .and()
-                .withExternal().source(States.JOIN).target(States.DEVICEDEACTIVATED);
+                .withExternal().source(States.JOIN).target(States.DEVICE_DEACTIVATED);
                 
                 // UI transitions
-                /*.withExternal().source(States.DEVICEACTIVATED).target(States.UIATIVATED).event(Events.ACTIVATEUIANDSPAT)
+                /*.withExternal().source(States.DEVICE_ACTIVATED).target(States.UI_ATIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
-                .withExternal().source(States.UIATIVATED).target(States.UISTANDBY).event(Events.ACTIVATEUISTANDBY)
+                .withExternal().source(States.UI_ATIVATED).target(States.UI_STANDBY).event(Events.ACTIVATE_UI_TANDBY)
                 .and()
-                .withExternal().source(States.UISTANDBY).target(States.UIDISPLAYWAITING).event(Events.SPATREADYFORUIDISPLAY)
+                .withExternal().source(States.UI_STANDBY).target(States.UI_DISPLAY_WAITING).event(Events.SPAT_READY_FOR_UI_DISPLAY)
                 .and()
-                .withExternal().source(States.UIDISPLAYWAITING).target(States.ADVISORYDISPLAYED).event(Events.DATARECEIVEDFROMSPAT)
+                .withExternal().source(States.UI_DISPLAY_WAITING).target(States.ADVISORY_DISPLAYED).event(Events.DATA_RECEIVED_FROM_SPAT)
                 */
                 
                 // SPaT transitions
                 /*.and()
-                .withExternal().source(States.DEVICEACTIVATED).target(States.SPATACTIVATED).event(Events.ACTIVATEUIANDSPAT)
+                .withExternal().source(States.DEVICE_ACTIVATED).target(States.SPAT_ACTIVATED).event(Events.ACTIVATE_UI_AND_SPAT)
                 .and()
-                .withExternal().source(States.SPATACTIVATED).target(States.SPATSTANDBY).event(Events.ACTIVATESPATSTANDBY)
+                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY).event(Events.ACTIVATE_SPAT_STANDBY)
                 .and()
-                .withExternal().source(States.SPATSTANDBY).target(States.TRIGGERADVCYCLE).event(Events.INRANGE)*/;
+                .withExternal().source(States.SPAT_STANDBY).target(States.TRIGGER_ADV_CYCLE).event(Events.IN_RANGE)*/;
                 
          /*     .withExternal().source(States.READY).target(States.FORK).event(Events.ACTIVATE)
                 .and()
                 .withFork().source(States.FORK).target(States.TASKS)
                 .and()
-                .withExternal().source(States.UIATIVATED).target(States.UISTANDBY)
+                .withExternal().source(States.UI_ACTIVATED).target(States.UI_STANDBY)
                 .and()
-                .withExternal().source(States.SPATACTIVATED).target(States.SPATSTANDBY);
+                .withExternal().source(States.SPAT_ACTIVATED).target(States.SPAT_STANDBY);
          */
     }
     
@@ -197,28 +197,28 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
     {
         states
                 // without fork
-                /*.withStates().initial(States.INITIALSTATE)  // initial state
-                .state(States.DEVICEACTIVATED)
-                .state(States.UIACTIVATED)
-                .state(States.SPATACTIVATED)
-                .state(States.UISTANDBY)
-                .state(States.UIDISPLAYWAITING)
-                .state(States.ADVISORYDISPLAYED)
-                .state(States.UISTANDBY)
-                .state(States.UIDEACTIVATED)
-                .state(States.SPATSTANDBY)
-                .state(States.TRIGGERADVCYCLE)
-                .end(States.DEVICEDEACTIVATED);*/  // final state
+                /*.withStates().initial(States.INITIAL_STATE)  // initial state
+                .state(States.DEVICE_ACTIVATED)
+                .state(States.UI_ACTIVATED)
+                .state(States.SPAT_ACTIVATED)
+                .state(States.UI_STANDBY)
+                .state(States.UI_DISPLAY_WAITING)
+                .state(States.ADVISORY_DISPLAYED)
+                .state(States.UI_STANDBY)
+                .state(States.UI_DEACTIVATED)
+                .state(States.SPAT_STANDBY)
+                .state(States.TRIGGER_ADV_CYCLE)
+                .end(States.DEVICE_DEACTIVATED);*/  // final state
                 
                 // with fork
-                .withStates().initial(States.INITIALSTATE)  // initial state
-                .state(States.DEVICEACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
+                .withStates().initial(States.INITIAL_STATE)  // initial state
+                .state(States.DEVICE_ACTIVATED).fork(States.FORK).state(States.TASKS).join(States.JOIN)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.UIACTIVATED).end(States.UISTANDBY)
+                .withStates().parent(States.TASKS).initial(States.UI_ACTIVATED).end(States.UI_STANDBY)
                 .and()
-                .withStates().parent(States.TASKS).initial(States.SPATACTIVATED).end(States.SPATSTANDBY)
-                .state(States.UIACTIVATED)
-                .stateEntry(States.UIACTIVATED, new Action<States, Events>()
+                .withStates().parent(States.TASKS).initial(States.SPAT_ACTIVATED).end(States.SPAT_STANDBY)
+                .state(States.UI_ACTIVATED)
+                .stateEntry(States.UI_ACTIVATED, new Action<States, Events>()
                 {
                     @Override
                     public void execute(StateContext<States, Events> context)
@@ -230,8 +230,8 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                         System.out.print("\nUI Activated Done\n");
                     }
                 })
-                .state(States.SPATACTIVATED)
-                .stateEntry(States.SPATACTIVATED, new Action<States, Events>()
+                .state(States.SPAT_ACTIVATED)
+                .stateEntry(States.SPAT_ACTIVATED, new Action<States, Events>()
                 {
                     @Override
                     public void execute(StateContext<States, Events> context)
@@ -242,8 +242,8 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                         System.out.print("\nSPaT Activated Done\n");
                     }
                 })
-                .state(States.UISTANDBY)
-                .stateEntry(States.UISTANDBY, new Action<States, Events>()
+                .state(States.UI_STANDBY)
+                .stateEntry(States.UI_STANDBY, new Action<States, Events>()
                 {
                     @Override
                     public void execute(StateContext<States, Events> context)
@@ -254,12 +254,12 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                         System.out.print("\nUI Standby Done\n");
                     }
                 })
-                .state(States.UIDISPLAYWAITING)
-                .state(States.ADVISORYDISPLAYED)
-                .state(States.UISTANDBY)
-                .state(States.UIDEACTIVATED)
-                .state(States.SPATSTANDBY)
-                .stateEntry(States.SPATSTANDBY, new Action<States, Events>()
+                .state(States.UI_DISPLAY_WAITING)
+                .state(States.ADVISORY_DISPLAYED)
+                .state(States.UI_STANDBY)
+                .state(States.UI_DEACTIVATED)
+                .state(States.SPAT_STANDBY)
+                .stateEntry(States.SPAT_STANDBY, new Action<States, Events>()
                 {
                     @Override
                     public void execute(StateContext<States, Events> context)
@@ -270,8 +270,8 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
                         System.out.print("\nSPaT Standby Done\n");
                     }
                 })
-                .state(States.TRIGGERADVCYCLE)
-                .end(States.DEVICEDEACTIVATED);  // final state
+                .state(States.TRIGGER_ADV_CYCLE)
+                .end(States.DEVICE_DEACTIVATED);  // final state
         
         
         
@@ -295,4 +295,4 @@ class SimpleEnumStatemachineConfiguration extends StateMachineConfigurerAdapter<
     }
 }
 
-    
+
